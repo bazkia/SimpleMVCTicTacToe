@@ -1,15 +1,33 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/* 
+ File:   TicTacModel.cpp
+ 
+ Copyright (c) 2020-Present Reza Saffarpour
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in all
+ copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ SOFTWARE.
+  
+ Licensed under the MIT License, you may not use this file except in compliance 
+ with the License. You may obtain a copy of the License at
+
+      https://mit-license.org/
  */
 
-/* 
- * File:   TicTacModel.cpp
- * Author: Mahyar
- * 
- * Created on March 1, 2020, 11:57 AM
- */
+#include <string>
 
 #include "TicTacModel.h"
 
@@ -25,14 +43,14 @@ TicTacModel::~TicTacModel() {
 }
 
 /**
- * 
+ * Prepares a copy of the board layout array
  * @param char * boardLayoutCopy is a copy of boardStatus from Model
  * @return char * a copy of boardStatus from Model
  */
 char * TicTacModel::getBoardStatusCopy(char * boardLayoutCopy) {
-    for (int i = 0; i < MAXCELLCOUNT; i++) 
+    for (int i = 0; i < MAXCELLCOUNT; i++)
         boardLayoutCopy[i] = boardLayout[i];
-    
+
     return boardLayoutCopy;
 }
 
@@ -127,15 +145,13 @@ char TicTacModel::checkWinner() {
 }
 
 /**
- * 
+ * Sets starter based on user answer
  * @param userStarter
  */
 void TicTacModel::setStarter(char userStarter) {
-
     if (userStarter == CONFIRM) {
         nextMove = COMPUTER;
         startingPlayer = COMPUTER;
-
     } else {
         nextMove = HUMAN;
         startingPlayer = HUMAN;
@@ -178,13 +194,12 @@ char TicTacModel::getComputerID() {
 }
 
 string TicTacModel::getComputerPlayerName() {
-return COMPUTERPLAYERNAME;
+    return COMPUTERPLAYERNAME;
 }
 
 string TicTacModel::getHumanPlayerName() {
     return HUMANPLAYERNAME;
 }
-
 
 bool TicTacModel::isCorner(int cellIndex) {
     if (cellIndex != CENTER && cellIndex % 2 == 0)
@@ -199,12 +214,11 @@ bool TicTacModel::isCorner(int cellIndex) {
  */
 int TicTacModel::findAFreeCornerIndex(void) {
     for (int i = 0; i < CORNERCOUNT; i++) {
-        if(isCellEmpty(cornerList[i]))
-            return cornerList[i]; 
+        if (isCellEmpty(cornerList[i]))
+            return cornerList[i];
     }
     return NOTVALIDINDEX;
 }
-
 
 /**
  * Finds whether the last used place is an edge and is neighbor of previous one 
@@ -245,7 +259,7 @@ int TicTacModel::findRandomCorner() {
  * @return opposite corner cell index
  */
 int TicTacModel::findOppositeCorner(int cellIndex) {
-    
+
     return ENDCELLINDEX - cellIndex;
 }
 
@@ -302,24 +316,20 @@ void TicTacModel::doComputerMove() {
                     return;
                 }
 
-                // It is far edge
-
+                // So it is a far edge
                 recordMove(CENTER, computerID);
-                
+
                 break;
 
             case 3:
-                cout << " --> case 3 \n";
                 int nextMoveIndex = getNextCornerIndex();
-                if (nextMoveIndex != NOTVALIDINDEX){
+                if (nextMoveIndex != NOTVALIDINDEX) {
                     recordMove(nextMoveIndex, computerID);
-                }
-                else{
+                } else {
                     int f = findAFreeCornerIndex();
-                    cout << " ----> f = " << f << "\n";
                     recordMove(findAFreeCornerIndex(), computerID);
                 }
-                    
+
                 break;
 
         }
@@ -393,7 +403,7 @@ int TicTacModel::findWinnerCell(int start, int increment, char playerID) {
 
         index += increment;
     }
-    
+
     if (similarCellCount == 2 && emptyCellCount == 1)
         return emptyCellIndex;
     else
@@ -406,4 +416,30 @@ void TicTacModel::setNextCornerIndex(int nextCornerIndex) {
 
 int TicTacModel::getNextCornerIndex(void) {
     return nextCornerIndex;
+}
+
+/**
+ * Creates a list of free cell numbers
+ * @return string
+ */
+string TicTacModel::getFreeBoardCellsNumbers() {
+    
+    string freeBoardCellsNumbers = "(";
+    bool first = true;
+
+    for (int i = 0; i < MAXCELLCOUNT; i++) {
+        if (boardLayout[i] == ' '){
+            if(first != true){
+                freeBoardCellsNumbers += ", ";
+            }
+            else{
+                first = false;
+            }
+            freeBoardCellsNumbers += to_string(i + 1);
+        }
+    }
+
+    freeBoardCellsNumbers += ")";
+    
+    return freeBoardCellsNumbers;
 }

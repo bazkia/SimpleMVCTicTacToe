@@ -1,27 +1,43 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /* 
- * File:   TicTacController.cpp
- * Author: Mahyar
- * 
- * Created on March 1, 2020, 7:43 PM
- */
+ File:   TicTacController.cpp
+ 
+ Copyright (c) 2020-Present Reza Saffarpour
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
+
+ The above copyright notice and this permission notice shall be included in all
+ copies or substantial portions of the Software.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ SOFTWARE.
+ 
+ Licensed under the MIT License, you may not use this file except in compliance 
+ with the License. You may obtain a copy of the License at
+
+      https://mit-license.org/
+*/
 
 #include "TicTacController.h"
 
 TicTacController::TicTacController() {
 }
 
-TicTacController::~TicTacController() {
-}
-
 TicTacController::TicTacController(TicTacModel &ticTacModel, TicTacView &ticTacView) {
     this->ticTacModel = ticTacModel;
     this->ticTacView = ticTacView;
+}
+
+TicTacController::~TicTacController() {
 }
 
 /**
@@ -33,19 +49,14 @@ void TicTacController::initializePlayer() {
     askPlayersSign();
 }
 
-
 /**
  * Asks user to find who is starting 
  * This function will be developed in future. 
  * Now computer starts first
  */
 void TicTacController::askWhoStarts() {
-    string playerSelection = "";
-
-    ticTacView.prepareStartingBodyQuestion();
-    playerSelection = "Y";
-    
-    ticTacModel.setStarter((char)toupper(playerSelection[0]));
+    // TODO ask user about the starting body    
+    ticTacModel.setStarter(CONFIRM);
 }
 
 /**
@@ -54,6 +65,7 @@ void TicTacController::askWhoStarts() {
  * Now computer starts sign is "X"
  */
 void TicTacController::askPlayersSign() {
+    // TODO  ask user about sign of of players
     ticTacModel.setHumanID('O');
     ticTacModel.setComputerID('X');
 }
@@ -61,7 +73,7 @@ void TicTacController::askPlayersSign() {
 /**
  * Main process of the game
  */
-void TicTacController::startGame() {
+bool TicTacController::startGame() {
     char winner = NOBODY;
     string winnerName;
     char boardLayoutCopy[MAXCELLCOUNT];
@@ -78,22 +90,36 @@ void TicTacController::startGame() {
         winner = ticTacModel.checkWinner();
     }
 
-    //boardLayoutCopy
     ticTacView.renderGameScreen(ticTacModel.getBoardStatusCopy(boardLayoutCopy), false);
 
     if(winner == TIE){
         ticTacView.announceNoWinner();
-        return;
+        return askToPlayAgain();
     }
     
-    if(winner == ticTacModel.getComputerID()){
+    if(winner == ticTacModel.getComputerID())
         ticTacView.announceWinner(ticTacModel.getComputerID(), 
                                     ticTacModel.getComputerPlayerName());
-        return;
-    }
-    
-    ticTacView.announceWinner(ticTacModel.getHumanID(), 
+    else
+        ticTacView.announceWinner(ticTacModel.getHumanID(), 
                                     ticTacModel.getHumanPlayerName());
+    
+    return askToPlayAgain();
+}
+
+/**
+ * Asks player about restarting the game
+ * @return 
+ */
+bool TicTacController::askToPlayAgain(){
+    string playerAnswer = "";
+
+    ticTacView.prepareAskToPlayAgainQuestion();
+    ticTacModel.setStarter((char)toupper(playerAnswer[0]));
+    
+    cin >> playerAnswer;
+    
+    return ((char)toupper(playerAnswer[0]) == CONFIRM);
 }
 
 /**
@@ -105,7 +131,7 @@ void TicTacController::askPlayerToMove() {
     
     do {
         ticTacView.renderGameScreen(ticTacModel.getBoardStatusCopy(boardLayoutCopy));
-        ticTacView.preparePlayerMoveQuestion();
+        ticTacView.preparePlayerMoveQuestion(ticTacModel.getFreeBoardCellsNumbers());
 
         playerNextCellIndex = ticTacView.getUserNextMove();
 
@@ -118,19 +144,17 @@ void TicTacController::askPlayerToMove() {
  * Calls Model to run main logic of computer moves. 
  */
 void TicTacController::askComputerToMove() {
-    
     ticTacModel.doComputerMove();
-//    int playerCellIndex;
-//
-//    do {
-//        srand(time(0));
-//        playerCellIndex = rand() % 10;
-//    } while (!ticTacModel.isPlayerMoveValid(playerCellIndex));
-//    ticTacModel.recordMove(playerCellIndex, computerID);
 }
 
-//int TicTacController::getUserNextMove(){
-//    int playerNextCellNumber;
-//    cin >> playerNextCellNumber;
-//    return playerNextCellNumber - 1;
-//}
+/**
+ * TODO : For future use only
+ */
+void TicTacController::doRandomMove(){
+    int playerCellIndex;
+    srand(time(0));
+    do {
+        playerCellIndex = rand() % 10;
+    } while (!ticTacModel.isPlayerMoveValid(playerCellIndex));
+    ticTacModel.recordMove(playerCellIndex, computerID);
+}
